@@ -1,0 +1,7 @@
+.star-rating {
+  color: #ffc107; /* Cor amarela para as estrelas */
+  font-size: 1.5rem;
+  display: inline-flex;
+  gap: 2px;
+  line-height: 1; /* Alinha as estrelas verticalmente */
+}
