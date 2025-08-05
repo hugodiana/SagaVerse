@@ -1,11 +1,11 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Types } from 'mongoose'; // Adicione Types
 import bcrypt from 'bcryptjs';
 
-// Interface para definir a estrutura do nosso documento de usuário
 export interface IUser extends Document {
+  _id: Types.ObjectId; // Adicione esta linha
   name: string;
   email: string;
-  password?: string; // A senha é opcional no retorno do objeto
+  password?: string;
   role: 'user' | 'admin';
   comparePassword(password: string): Promise<boolean>;
 }
@@ -13,26 +13,23 @@ export interface IUser extends Document {
 const userSchema = new Schema<IUser>({
   name: { type: String, required: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-  password: { type: String, required: true, select: false }, // 'select: false' impede que a senha seja retornada em queries
+  password: { type: String, required: true, select: false },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
 }, { timestamps: true });
 
-// Middleware (hook) que é executado ANTES de salvar um usuário
-// Usamos para criptografar a senha
 userSchema.pre('save', async function (next) {
-  // 'this' se refere ao documento do usuário que está sendo salvo
-  if (!this.isModified('password')) {
+  if (!this.isModified('password') || !this.password) {
     return next();
   }
-  if (this.password) {
-      const salt = await bcrypt.genSalt(10);
-      this.password = await bcrypt.hash(this.password, salt);
-  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-// Método para comparar a senha enviada no login com a senha criptografada no banco
 userSchema.methods.comparePassword = function (password: string): Promise<boolean> {
+  if (!this.password) {
+    return Promise.resolve(false);
+  }
   return bcrypt.compare(password, this.password);
 };
 
