@@ -6,6 +6,7 @@ export interface IMovie extends Document {
   year: number;
   orderInSaga: number;
   saga: Types.ObjectId;
+  imageUrl?: string;
   reviews: IReview[];
 }
 
@@ -13,6 +14,7 @@ const movieSchema = new Schema<IMovie>({
   title: { type: String, required: true, trim: true },
   year: { type: Number, required: true },
   orderInSaga: { type: Number, required: true },
+  imageUrl: { type: String },
   reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }],
 });
 

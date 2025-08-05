@@ -41,3 +41,18 @@ export const searchCollections = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Erro ao se comunicar com a API do TMDb.' });
   }
 };
+
+export const getCollectionDetails = async (req: Request, res: Response) => {
+  const collectionId = req.params.id;
+  const TMDB_API_KEY = process.env.TMDB_API_KEY;
+  try {
+    const response = await axios.get(`${TMDB_API_URL}/collection/${collectionId}`, {
+      params: { api_key: TMDB_API_KEY, language: 'pt-BR' },
+    });
+    // Retornamos apenas a lista de filmes ('parts')
+    res.json(response.data.parts);
+  } catch (error) {
+    console.error('Erro ao buscar detalhes da coleção no TMDb:', error);
+    res.status(500).json({ message: 'Erro ao buscar detalhes da coleção.' });
+  }
+};

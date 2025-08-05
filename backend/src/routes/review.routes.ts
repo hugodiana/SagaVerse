@@ -1,10 +1,14 @@
 import { Router } from 'express';
-import { createReview } from '../controllers/review.controller';
-import { protect } from '../middleware/auth.middleware'; // Importe o middleware
+// A CORREÇÃO ESTÁ AQUI: Adicionamos 'updateReview' e 'deleteReview' na lista
+import { createReview, updateReview, deleteReview } from '../controllers/review.controller';
+import { protect } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// A rota agora é protegida. Só passa se o token for válido.
 router.post('/', protect, createReview);
+
+// Rotas para editar e apagar uma avaliação
+router.put('/:id', protect, updateReview);
+router.delete('/:id', protect, deleteReview);
 
 export default router;

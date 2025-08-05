@@ -6,6 +6,7 @@ export interface ISaga extends Document {
   genre: string;
   imageUrl?: string;
   movies: IMovie[];
+  tmdbId: number;
 }
 
 const sagaSchema = new Schema<ISaga>({
@@ -13,6 +14,7 @@ const sagaSchema = new Schema<ISaga>({
   genre: { type: String, required: true, trim: true },
   imageUrl: { type: String },
   movies: [{ type: Schema.Types.ObjectId, ref: 'Movie' }],
+  tmdbId: { type: Number, required: true },
 });
 
 export const Saga = model<ISaga>('Saga', sagaSchema);

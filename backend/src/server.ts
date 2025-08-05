@@ -7,6 +7,7 @@ import sagaRoutes from './routes/saga.routes';
 import reviewRoutes from './routes/review.routes';
 import userRoutes from './routes/user.routes';
 import tmdbRoutes from './routes/tmdb.routes';
+import movieRoutes from './routes/movie.routes';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/tmdb', tmdbRoutes);
 app.use('/api/sagas', sagaRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/movies', movieRoutes);
 
 // Conexão com o MongoDB
 if (!MONGO_URI) {

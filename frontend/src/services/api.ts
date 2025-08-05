@@ -2,14 +2,13 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5001/api';
 
-export const api = axios.create({ // Exportamos a instância do axios
+export const api = axios.create({
   baseURL: API_URL,
 });
 
 // Funções de Autenticação
 export const registerUser = (data: any) => api.post('/auth/register', data);
 export const loginUser = (data: any) => api.post('/auth/login', data);
-export const getMyReviews = () => api.get('/users/me/reviews');
 
 // Funções de Sagas
 export const getSagas = (search?: string) => api.get('/sagas', {
@@ -19,8 +18,25 @@ export const getSagaDetails = (sagaId: string) => api.get(`/sagas/${sagaId}`);
 
 // Funções de Reviews
 export const createReview = (data: { rating: number; comment?: string; movieId: string }) => api.post('/reviews', data);
+export const updateReview = (reviewId: string, data: { rating: number; comment?: string }) => api.put(`/reviews/${reviewId}`, data);
+export const deleteReview = (reviewId: string) => api.delete(`/reviews/${reviewId}`);
 
-// Interfaces de Tipagem
+// Funções de Usuário
+export const getMyReviews = () => api.get('/users/me/reviews');
+
+// Funções de Gerenciamento
+export const deleteSaga = (sagaId: string) => api.delete(`/sagas/${sagaId}`);
+export const deleteMovie = (movieId: string) => api.delete(`/movies/${movieId}`);
+
+// Funções de Admin (TMDb)
+export const createSaga = (data: { title: string; genre: string; imageUrl?: string, tmdbId: number }) => api.post('/sagas', data);
+export const addMovieToSaga = (sagaId: string, data: { title: string; year: number; orderInSaga: number, imageUrl?: string }) => api.post(`/sagas/${sagaId}/movies`, data);
+export const searchTmdbSagas = (query: string) => api.get('/tmdb/sagas', {
+  params: { query }
+});
+export const getTmdbSagaMovies = (tmdbSagaId: number) => api.get(`/tmdb/saga/${tmdbSagaId}/movies`);
+
+// --- Interfaces de Tipagem ---
 export interface IUser {
   _id: string;
   name: string;
@@ -32,7 +48,7 @@ export interface IReview {
   _id: string;
   rating: number;
   comment?: string;
-  user: IUser; // ANTES: friend
+  user: IUser;
 }
 
 export interface IMovie {
@@ -40,6 +56,7 @@ export interface IMovie {
   title: string;
   year: number;
   orderInSaga: number;
+  imageUrl?: string; // <-- A CORREÇÃO ESTÁ AQUI
   reviews: IReview[];
 }
 
@@ -48,15 +65,12 @@ export interface ISagaSummary {
     title: string;
     genre: string;
     imageUrl?: string;
+    tmdbId: number;
 }
 
 export interface ISagaDetails extends ISagaSummary {
   movies: IMovie[];
 }
-
-// Funções de Admin
-export const createSaga = (data: { title: string; genre: string; imageUrl?: string }) => api.post('/sagas', data);
-export const addMovieToSaga = (sagaId: string, data: { title: string; year: number; orderInSaga: number }) => api.post(`/sagas/${sagaId}/movies`, data);
 
 export interface IMyReview {
     _id: string;
@@ -72,8 +86,3 @@ export interface IMyReview {
     };
     createdAt: string;
 }
-
-// Função para buscar sagas no TMDb através do nosso backend
-export const searchTmdbSagas = (query: string) => api.get('/tmdb/sagas', {
-  params: { query }
-});

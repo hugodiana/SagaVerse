@@ -4,7 +4,9 @@ import { Movie } from '../models/movie.model';
 
 export const createSaga = async (req: Request, res: Response) => {
     try {
-        const saga = new Saga(req.body);
+        // Agora esperamos o tmdbId do frontend
+        const { title, genre, imageUrl, tmdbId } = req.body;
+        const saga = new Saga({ title, genre, imageUrl, tmdbId });
         await saga.save();
         res.status(201).json(saga);
     } catch (error) {
@@ -71,4 +73,33 @@ export const getSagaDetails = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).json({ message: 'Erro no servidor', error });
     }
+};
+
+export const deleteSaga = async (req: Request, res: Response) => {
+  try {
+    const sagaId = req.params.id;
+    const saga = await Saga.findById(sagaId);
+
+    if (!saga) {
+      return res.status(404).json({ message: 'Saga não encontrada.' });
+    }
+
+    // Encontrar todos os IDs dos filmes da saga
+    const movieIds = saga.movies;
+
+    if (movieIds && movieIds.length > 0) {
+      // 1. Apagar todas as avaliações de todos os filmes da saga
+      await Review.deleteMany({ movie: { $in: movieIds } });
+
+      // 2. Apagar todos os filmes da saga
+      await Movie.deleteMany({ _id: { $in: movieIds } });
+    }
+
+    // 3. Apagar a saga
+    await saga.deleteOne();
+
+    res.status(200).json({ message: 'Saga, filmes e avaliações associadas foram apagados com sucesso.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao apagar saga', error });
+  }
 };

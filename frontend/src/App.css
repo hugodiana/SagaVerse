@@ -282,3 +282,44 @@ main {
     padding: 10px;
   }
 }
+
+.user-review-box {
+  background-color: #2a2a2a;
+  padding: 1rem;
+  border-radius: 4px;
+  border-left: 2px solid var(--primary-color);
+}
+.user-review-box p {
+  margin: 0.5rem 0 1rem 0;
+  font-style: italic;
+}
+.review-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.review-actions button {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--secondary-color);
+  background: none;
+  color: var(--secondary-color);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.review-actions button.delete {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+.movie-container.with-poster {
+  display: flex;
+  gap: 1.5rem;
+}
+.movie-poster {
+  width: 100px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.movie-info {
+  flex-grow: 1;
+}

@@ -1,51 +1,56 @@
-import React, { useState } from 'react';
-import { createReview } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import React, { useState, useEffect } from 'react';
+import { createReview, updateReview, IReview } from '../services/api';
+import toast from 'react-hot-toast';
 
 interface ReviewFormProps {
     movieId: string;
     onReviewSubmit: () => void;
+    existingReview?: IReview | null; // Prop opcional para o modo de edição
 }
 
-const ReviewForm: React.FC<ReviewFormProps> = ({ movieId, onReviewSubmit }) => {
-    const { user } = useAuth(); // Usamos o contexto para saber se o usuário está logado
-    const [rating, setRating] = useState(7);
-    const [comment, setComment] = useState('');
+const ReviewForm: React.FC<ReviewFormProps> = ({ movieId, onReviewSubmit, existingReview }) => {
+    const isEditMode = !!existingReview;
+    const [rating, setRating] = useState(existingReview?.rating || 7);
+    const [comment, setComment] = useState(existingReview?.comment || '');
     const [submitting, setSubmitting] = useState(false);
-    const [error, setError] = useState('');
+
+    useEffect(() => {
+      // Atualiza o formulário se a prop existingReview mudar
+      if (existingReview) {
+        setRating(existingReview.rating);
+        setComment(existingReview.comment || '');
+      }
+    }, [existingReview]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitting(true);
-        setError('');
+
         try {
-            await createReview({ rating, comment, movieId });
+            if (isEditMode) {
+                await updateReview(existingReview._id, { rating, comment });
+                toast.success('Avaliação atualizada!');
+            } else {
+                await createReview({ rating, comment, movieId });
+                toast.success('Avaliação enviada!');
+            }
             onReviewSubmit();
-            setComment('');
-            setRating(7);
-        } catch (err) {
-            setError("Erro ao enviar avaliação. Você está logado?");
-            console.error(err);
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Ocorreu um erro.');
         } finally {
             setSubmitting(false);
         }
     }
 
-    // Se não houver usuário logado, mostramos uma mensagem
-    if (!user) {
-        return <p>Você precisa <a href="/login">fazer login</a> para avaliar.</p>
-    }
-
     return (
         <form className="review-form" onSubmit={handleSubmit}>
-            <label>Sua Avaliação:</label>
+            <label>Sua Nota:</label>
             <input type="range" min="0" max="10" step="0.5" value={rating} onChange={e => setRating(Number(e.target.value))} required/>
-            <span>Nota: {rating}</span>
+            <span>{rating}</span>
             <textarea value={comment} onChange={e => setComment(e.target.value)} placeholder="Comentário (opcional)" />
             <button type="submit" disabled={submitting}>
-                {submitting ? 'Enviando...' : 'Avaliar'}
+                {submitting ? 'Salvando...' : (isEditMode ? 'Salvar Edição' : 'Avaliar')}
             </button>
-            {error && <p className="error-message" style={{width: '100%', marginTop: '10px'}}>{error}</p>}
         </form>
     );
 }
