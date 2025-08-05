@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.routes';
 import sagaRoutes from './routes/saga.routes';
 import reviewRoutes from './routes/review.routes';
 import userRoutes from './routes/user.routes';
+import tmdbRoutes from './routes/tmdb.routes';
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(express.json());
 // Rotas da API
 app.use('/api/auth', authRoutes); 
 app.use('/api/users', userRoutes);
+app.use('/api/tmdb', tmdbRoutes);
 app.use('/api/sagas', sagaRoutes);
 app.use('/api/reviews', reviewRoutes);
 
