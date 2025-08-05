@@ -72,3 +72,8 @@ export interface IMyReview {
     };
     createdAt: string;
 }
+
+// Função para buscar sagas no TMDb através do nosso backend
+export const searchTmdbSagas = (query: string) => api.get('/tmdb/sagas', {
+  params: { query }
+});
