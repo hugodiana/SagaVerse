@@ -3,7 +3,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { User, IUser } from '../models/user.model';
 
 export interface AuthRequest extends Request {
-  user?: IUser | null; // <-- Correção aqui: aceita IUser ou null
+  user?: IUser | null;
 }
 
 export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -13,8 +13,10 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
     try {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET || '') as JwtPayload;
-      req.user = await User.findById(decoded.id).select('-password');
 
+      // A CORREÇÃO ESTÁ AQUI: Adicionamos 'as IUser' para garantir o tipo
+      req.user = await User.findById(decoded.id).select('-password') as IUser;
+      
       if (!req.user) {
         return res.status(401).json({ message: 'Não autorizado, usuário não encontrado.' });
       }
